@@ -5,3 +5,4 @@ CMakeLists.txt.user*
 build*/
 boost*
 tags
+.aider*
