@@ -545,7 +545,12 @@ bool FileFindIter::operator!=(const FileFindIter& rhs) const {
     return dir != rhs.dir;
 }
 
-FileFindIter::DirData::DirData() : ent(NULL) {}
+FileFindIter::DirData::DirData() :
+    ent(nullptr)
+#ifndef _WIN32
+    , statCached(false)
+#endif
+{}
 
 string FileFindIter::DirData::getFileName() {
     if (!ent) return Util::emptyString;
@@ -553,10 +558,11 @@ string FileFindIter::DirData::getFileName() {
 }
 
 bool FileFindIter::DirData::isDirectory() {
-    struct stat inode;
     if (!ent) return false;
-    if (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &inode) == -1) return false;
-    return S_ISDIR(inode.st_mode);
+    if (!statCached) {
+        statCached = (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &st) == 0);
+    }
+    return statCached ? S_ISDIR(st.st_mode) : false;
 }
 
 bool FileFindIter::DirData::isHidden() {
@@ -572,17 +578,19 @@ bool FileFindIter::DirData::isLink() {
 }
 
 int64_t FileFindIter::DirData::getSize() {
-    struct stat inode;
-    if (!ent) return false;
-    if (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &inode) == -1) return 0;
-    return inode.st_size;
+    if (!ent) return 0;
+    if (!statCached) {
+        statCached = (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &st) == 0);
+    }
+    return statCached ? st.st_size : 0;
 }
 
 uint32_t FileFindIter::DirData::getLastWriteTime() {
-    struct stat inode;
-    if (!ent) return false;
-    if (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &inode) == -1) return 0;
-    return inode.st_mtime;
+    if (!ent) return 0;
+    if (!statCached) {
+        statCached = (stat((base + PATH_SEPARATOR + ent->d_name).c_str(), &st) == 0);
+    }
+    return statCached ? static_cast<uint32_t>(st.st_mtime) : 0;
 }
 
 #endif // !_WIN32

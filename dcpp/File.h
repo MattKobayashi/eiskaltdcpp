@@ -142,6 +142,8 @@ public:
 #ifndef _WIN32
         dirent* ent;
         string base;
+        struct stat st;         // cached result of stat()
+        bool statCached;        // true after first stat() attempt
 #endif
     };
 
