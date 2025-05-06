@@ -1,6 +1,8 @@
+cmake_minimum_required(VERSION 3.31)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    cmake_policy(VERSION 3.31)          # lock behaviour for CMake ≥ 4
+endif()
 project(eiskaltdcpp-cli)
-
-cmake_minimum_required(VERSION 3.2.0)
 
 if (USE_CLI_XMLRPC)
     install (FILES cli-xmlrpc.pl DESTINATION ${BINDIR} RENAME ${PROJECT_NAME}-xmlrpc

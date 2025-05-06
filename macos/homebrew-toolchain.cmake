@@ -1,19 +1,30 @@
+# HOMEBREW prefix
 if(DEFINED ENV{HOMEBREW})
     set(HOMEBREW "$ENV{HOMEBREW}")
 else()
-    set(HOMEBREW "/usr/local")
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(HOMEBREW "/opt/homebrew")      # default Apple-Silicon path
+    else()
+        set(HOMEBREW "/usr/local")
+    endif()
 endif()
 
+# Deployment target
 if(DEFINED ENV{OSX_DEPLOYMENT_TARGET})
     set(OSX_DEPLOYMENT_TARGET "$ENV{OSX_DEPLOYMENT_TARGET}")
 else()
-    set(OSX_DEPLOYMENT_TARGET "10.15")
+    set(OSX_DEPLOYMENT_TARGET "11.0")      # first macOS that runs on M1
 endif()
 
+# Architectures
 if(DEFINED ENV{OSX_ARCHITECTURES})
     set(OSX_ARCHITECTURES "$ENV{OSX_ARCHITECTURES}")
 else()
-    set(OSX_ARCHITECTURES "x86_64")
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(OSX_ARCHITECTURES "arm64")
+    else()
+        set(OSX_ARCHITECTURES "x86_64")
+    endif()
 endif()
 
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${HOMEBREW}")

@@ -1,5 +1,8 @@
+cmake_minimum_required(VERSION 3.31)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    cmake_policy(VERSION 3.31)          # lock behaviour for CMake ≥ 4
+endif()
 project (eiskaltdcpp)
-cmake_minimum_required (VERSION 3.2.0)
 
 set (PROJECT_NAME "EiskaltDC++")
 set (APP_VERSION "2.4.2+devel") # Main program version (displayed in UI)

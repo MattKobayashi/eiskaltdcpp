@@ -1,5 +1,8 @@
+cmake_minimum_required(VERSION 3.31)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    cmake_policy(VERSION 3.31)          # lock behaviour for CMake ≥ 4
+endif()
 project (jsonrpcpp)
-cmake_minimum_required (VERSION 3.2.0)
 
 # ######### General setup ##########
 

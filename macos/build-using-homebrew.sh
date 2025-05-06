@@ -20,12 +20,17 @@
 
 set -e
 
-[ -z "${HOMEBREW}" ] && HOMEBREW="/usr/local"
+if [ -z "${HOMEBREW}" ]; then
+    case "$(uname -m)" in
+        arm64)  HOMEBREW="/opt/homebrew" ;;   # default Apple Silicon prefix
+        *)      HOMEBREW="/usr/local"   ;;    # default Intel prefix
+    esac
+fi
 
 PATH="${HOMEBREW}/bin:${PATH}"
 PATH="${HOMEBREW}/opt/ccache/libexec:${PATH}"
-CUR_DIR="$(dirname $(realpath -s ${0}))"
-MAIN_DIR="$(realpath -s ${CUR_DIR}/..)"
+CUR_DIR="$(dirname $(realpath ${0}))"
+MAIN_DIR="$(realpath ${CUR_DIR}/..)"
 TOOLCHAIN_FILE="${CUR_DIR}/homebrew-toolchain.cmake"
 
 BUILD_OPTIONS="-DCMAKE_BUILD_TYPE=Release \
@@ -43,6 +48,8 @@ BUILD_OPTIONS="-DCMAKE_BUILD_TYPE=Release \
                -DWITH_LUASCRIPTS=ON \
                -DLOCAL_ASPELL_DATA=OFF \
                -DLOCAL_JSONCPP=OFF"
+# Force the native architecture when building on Apple Silicon
+[ "$(uname -m)" = "arm64" ] && BUILD_OPTIONS="${BUILD_OPTIONS} -DCMAKE_OSX_ARCHITECTURES=arm64"
 
 mkdir -p "${MAIN_DIR}/builddir"
 cd "${MAIN_DIR}/builddir"
@@ -57,5 +64,5 @@ cp -a EiskaltDC++*.dmg "${MAIN_DIR}/../"
 
 echo
 echo "App bundle is built successfully! See:"
-echo "$(realpath -s ${MAIN_DIR}/..)/$(ls EiskaltDC++*.dmg | sort -V | tail -n1)"
+echo "$(realpath ${MAIN_DIR}/..)/$(ls EiskaltDC++*.dmg | sort -V | tail -n1)"
 echo
