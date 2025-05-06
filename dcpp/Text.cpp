@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <iconv.h>
 #include <langinfo.h>
+#include <strings.h>   // for strcasecmp
 
 #ifndef ICONV_CONST
 #define ICONV_CONST
@@ -345,6 +346,10 @@ const string& convert(const string& str, string& tmp, const string& fromCharset,
     dcdebug("Unknown conversion from %s to %s\n", fromCharset.c_str(), toCharset.c_str());
     return str;
 #else
+    if (strcasecmp(fromCharset.c_str(), toCharset.c_str()) == 0) {
+        // encodings already match – skip expensive iconv call
+        return str;
+    }
 
     // Initialize the converter
     iconv_t cd = iconv_open(toCharset.c_str(), fromCharset.c_str());
