@@ -1,0 +1,35 @@
+jobs:
+  build:
+    name: Build
+    permissions:
+      contents: write
+    runs-on: macos-15
+    steps:
+      # Checkout repository
+      # https://github.com/actions/checkout
+      - id: checkout
+        name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      # Build macOS package
+      - id: build
+        name: Build macOS package
+        run: |
+          cd macos
+          export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
+          brew install ccache coreutils
+          brew install aspell jsoncpp lua miniupnpc qt@5
+          export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+          ./build-using-homebrew.sh
+          cd ../../
+          echo "pkg=$(ls *.dmg)" >> $GITHUB_OUTPUT
+      # Add package to latest release
+      - name: Add package to latest release
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2.9.0
+        with:
+          file: /Users/runner/work/eiskaltdcpp/${{ steps.build.outputs.pkg }}
+name: Package
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
