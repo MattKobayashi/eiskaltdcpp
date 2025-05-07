@@ -5186,10 +5186,15 @@ const char *mg_set_option(struct mg_server *server, const char *name,
         ns_sock_to_str(c->sock, buf2, sizeof(buf2),
                        memchr(vec.ptr, ':', vec.len) == NULL ? 2 : 3);
 
-        n += snprintf(buf + n, sizeof(buf) - n, "%s%s%s%s%s%s%s",
-                      n > 0 ? "," : "",
-                      use_ssl ? "ssl://" : "",
-                      buf2, cert[0] ? ":" : "", cert, ca[0] ? ":" : "", ca);
+        int written = snprintf(buf + n, sizeof(buf) - n, "%s%s%s%s%s%s%s",
+                                n > 0 ? "," : "",
+                                use_ssl ? "ssl://" : "",
+                                buf2, cert[0] ? ":" : "", cert, ca[0] ? ":" : "", ca);
+        if (written < 0 || (size_t)written >= sizeof(buf) - n) {
+          error_msg = "Buffer overflow detected";
+          break;
+        }
+        n += written;
       }
     }
     buf[sizeof(buf) - 1] = '\0';
