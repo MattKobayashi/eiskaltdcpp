@@ -3760,15 +3760,16 @@ static int remove_directory(const char *dir) {
   DIR *dirp;
 
   if ((dirp = opendir(dir)) == NULL) return 0;
+  int dir_fd = dirfd(dirp);
 
   while ((dp = readdir(dirp)) != NULL) {
     if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, "..")) continue;
-    mg_snprintf(path, sizeof(path), "%s%c%s", dir, '/', dp->d_name);
-    stat(path, &st);
+    if (fstatat(dir_fd, dp->d_name, &st, 0) == -1) continue;
     if (S_ISDIR(st.st_mode)) {
+      mg_snprintf(path, sizeof(path), "%s%c%s", dir, '/', dp->d_name);
       remove_directory(path);
     } else {
-      remove(path);
+      unlinkat(dir_fd, dp->d_name, 0);
     }
   }
   closedir(dirp);
