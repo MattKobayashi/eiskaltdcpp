@@ -900,16 +900,30 @@ int ns_hexdump(const void *buf, int len, char *dst, int dst_len) {
   for (i = 0; i < len; i++) {
     idx = i % 16;
     if (idx == 0) {
-      if (i > 0) n += snprintf(dst + n, dst_len - n, "  %s\n", ascii);
-      n += snprintf(dst + n, dst_len - n, "%04x ", i);
+      if (i > 0) {
+        int written = snprintf(dst + n, dst_len - n, "  %s\n", ascii);
+        if (written < 0 || written >= dst_len - n) return n;
+        n += written;
+      }
+      int written = snprintf(dst + n, dst_len - n, "%04x ", i);
+      if (written < 0 || written >= dst_len - n) return n;
+      n += written;
     }
-    n += snprintf(dst + n, dst_len - n, " %02x", p[i]);
+    int written = snprintf(dst + n, dst_len - n, " %02x", p[i]);
+    if (written < 0 || written >= dst_len - n) return n;
+    n += written;
     ascii[idx] = p[i] < 0x20 || p[i] > 0x7e ? '.' : p[i];
     ascii[idx + 1] = '\0';
   }
 
-  while (i++ % 16) n += snprintf(dst + n, dst_len - n, "%s", "   ");
-  n += snprintf(dst + n, dst_len - n, "  %s\n\n", ascii);
+  while (i++ % 16) {
+    int written = snprintf(dst + n, dst_len - n, "%s", "   ");
+    if (written < 0 || written >= dst_len - n) return n;
+    n += written;
+  }
+  int written = snprintf(dst + n, dst_len - n, "  %s\n\n", ascii);
+  if (written < 0 || written >= dst_len - n) return n;
+  n += written;
 
   return n;
 }
