@@ -2711,7 +2711,7 @@ static int convert_uri_to_file_name(struct connection *conn, char *buf,
   if (root == NULL || root_len == 0) return 0;
 
   // Handle URL rewrites
-  mg_snprintf(buf, buf_len, "%.*s%s", root_len, root, uri);
+  mg_snprintf(buf, buf_len, "%.*s%s", (int) root_len, root, uri);
   rewrites = conn->server->config_options[URL_REWRITES];  // Re-initialize!
   while ((rewrites = next_option(rewrites, &a, &b)) != NULL) {
     if ((match_len = mg_match_prefix(a.ptr, a.len, uri)) > 0) {
