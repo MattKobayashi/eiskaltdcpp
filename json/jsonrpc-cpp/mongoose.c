@@ -1926,7 +1926,7 @@ static void send_http_error(struct connection *conn, int code,
       c->status_code = 302;
       mg_printf(c, "HTTP/1.1 %d Moved\r\n"
                 "Location: %.*s?code=%d&orig_uri=%s&query_string=%s\r\n\r\n",
-                c->status_code, b.len, b.ptr, code, c->uri,
+                c->status_code, (int)b.len, b.ptr, code, c->uri,
                 c->query_string == NULL ? "" : c->query_string);
       close_local_endpoint(conn);
       return;
