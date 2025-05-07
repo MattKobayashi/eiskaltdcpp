@@ -3780,14 +3780,21 @@ static int remove_directory(const char *dir) {
 static void handle_delete(struct connection *conn, const char *path) {
   file_stat_t st;
 
-  if (stat(path, &st) != 0) {
+  int fd = open(path, O_PATH);
+  if (fd == -1) {
     send_http_error(conn, 404, NULL);
+  } else if (fstat(fd, &st) != 0) {
+    close(fd);
+    send_http_error(conn, 500, NULL);
   } else if (S_ISDIR(st.st_mode)) {
+    close(fd);
     remove_directory(path);
     send_http_error(conn, 204, NULL);
-  } else if (remove(path) == 0) {
+  } else if (unlinkat(AT_FDCWD, path, 0) == 0) {
+    close(fd);
     send_http_error(conn, 204, NULL);
   } else {
+    close(fd);
     send_http_error(conn, 423, NULL);
   }
 }
