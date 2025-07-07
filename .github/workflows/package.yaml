@@ -24,7 +24,7 @@ jobs:
           echo "pkg=$(ls *.dmg)" >> $GITHUB_OUTPUT
       # Add package to latest release
       - name: Add package to latest release
-        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2.9.0
+        uses: svenstaro/upload-release-action@81c65b7cd4de9b2570615ce3aad67a41de5b1a13 # 2.11.2
         with:
           file: /Users/runner/work/eiskaltdcpp/${{ steps.build.outputs.pkg }}
 name: Package
